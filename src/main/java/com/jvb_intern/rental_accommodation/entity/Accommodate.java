@@ -62,7 +62,4 @@ public class Accommodate {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
-
-    @OneToMany(mappedBy = "accommodate")
-    private List<AccommodateService> AccommodateServices;
 }

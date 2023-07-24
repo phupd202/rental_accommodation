@@ -38,16 +38,30 @@ public class RegistrationController {
         return "register-test";
     }
 
+    @GetMapping("/login")
+    public String login() {
+        return "login-test";
+    }
+
     @PostMapping("/register/save")
     public String saveRegistration(@Valid @ModelAttribute("registration") RegistrationDto registrationDto, Model model, BindingResult result) {
+        // data from dto
         String role = registrationDto.getRole();
         String email = registrationDto.getEmail();
         String password = registrationDto.getPassword();
         String confirmPassword = registrationDto.getConfirmPassword();
 
-        if(role.equals("Người tìm trọ")) {
-            Tenant existingTenant = tenantService.findByTenantEmail(email);
+        Tenant existingTenant = tenantService.findByTenantEmail(email);
+        String tenantEmail = existingTenant.getTenantEmail();
+        Landlord existingLandlord = landlordService.findByTenantEmail(email);
+        String landlordEmail = existingLandlord.getLandlordEmail();
 
+        if(existingTenant != null && existingLandlord != null && tenantEmail.equals(landlordEmail)) {
+            result.rejectValue("email", null, 
+                            "Tài khoản đã tồn tại trên hệ thống!");
+        }
+
+        if(role.equals("Người tìm trọ")) {
             if(existingTenant != null && existingTenant.getTenantEmail() != null && !existingTenant.getTenantEmail().isEmpty()) {
                 result.rejectValue("email", null, 
                             "Tài khoản đã tồn tại!!");
@@ -68,7 +82,6 @@ public class RegistrationController {
                 tenantService.saveTenant(tenantDto);
             }
         } else {
-            Landlord existingLandlord = landlordService.findByTenantEmail(email);
 
             if(existingLandlord != null && existingLandlord.getLandlordEmail() != null && !existingLandlord.getLandlordEmail().isEmpty()) {
                 result.rejectValue("email", null, 
@@ -92,4 +105,5 @@ public class RegistrationController {
         }
         return "redirect:/register?success";
     }
+
 }

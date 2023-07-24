@@ -11,29 +11,41 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.jvb_intern.rental_accommodation.entity.Landlord;
 import com.jvb_intern.rental_accommodation.entity.Tenant;
+import com.jvb_intern.rental_accommodation.repository.LandlordRepository;
 import com.jvb_intern.rental_accommodation.repository.TenantRepository;
 
-
 @Service
-public class CustomerUserDetailService implements UserDetailsService{
+public class CustomerUserDetailService implements UserDetailsService {
+
     @Autowired
     private TenantRepository tenantRepository;
 
-    // constructor
-    public CustomerUserDetailService(TenantRepository tenantRepository) {
-        this.tenantRepository = tenantRepository;
-    }
+    @Autowired
+    private LandlordRepository landlordRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Tenant tenantUser = tenantRepository.findByTenantEmail(email);
-
-        if(tenantUser != null) {
-            List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_TENANT")); // tạo danh sach bất biến chứa duy nhất 1 phần tử
-            return new org.springframework.security.core.userdetails.User(tenantUser.getTenantEmail(), tenantUser.getPassword(), authorities);// trả về đối tượng User chứa thông tin người dùng
+        if (email.equals("admin@gmail.com")) {
+            String password = "admin-password";
+            List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            return new org.springframework.security.core.userdetails.User(email, password, authorities);
         } else {
-            throw new UsernameNotFoundException("Không tìm thấy thông tin tài khoản trong hệ thống");
+            Tenant tenant = tenantRepository.findByTenantEmail(email);
+            // find email in 2 tables Tenant and Landlord
+            if(tenant != null) {
+                List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_TENANT"));
+                return new org.springframework.security.core.userdetails.User(tenant.getTenantEmail(), tenant.getPassword(), authorities);
+            } else {
+                Landlord landlord = landlordRepository.findByLandlordEmail(email);
+                if(landlord != null) {
+                    List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_LANDLORD"));
+                    return new org.springframework.security.core.userdetails.User(landlord.getLandlordEmail(), landlord.getLandlordEmail(), authorities);
+                } else {
+                    throw new UsernameNotFoundException("Không tìm thấy tài khoản trong hệ thống");
+                }
+            }
         }
     }
 }

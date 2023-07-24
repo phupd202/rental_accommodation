@@ -25,7 +25,7 @@ public class Admin {
     private Long adminId;
 
     @Column(name = "email")
-    private String email;
+    private String admindEmail;
 
     @Column(name = "password")
     private String password;

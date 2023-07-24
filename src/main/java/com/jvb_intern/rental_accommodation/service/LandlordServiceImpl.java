@@ -9,17 +9,17 @@ import org.springframework.stereotype.Service;
 
 import com.jvb_intern.rental_accommodation.dto.LandlordDto;
 import com.jvb_intern.rental_accommodation.entity.Landlord;
-import com.jvb_intern.rental_accommodation.repository.LandlordReposiry;
+import com.jvb_intern.rental_accommodation.repository.LandlordRepository;
 
 @Service
 public class LandlordServiceImpl implements LandlordService {
     @Autowired
-    private LandlordReposiry landlordReposiry;
+    private LandlordRepository landlordReposiry;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public LandlordServiceImpl(LandlordReposiry landlordReposiry, PasswordEncoder passwordEncoder) {
+    public LandlordServiceImpl(LandlordRepository landlordReposiry, PasswordEncoder passwordEncoder) {
         this.landlordReposiry = landlordReposiry;
         this.passwordEncoder = passwordEncoder;
     }
